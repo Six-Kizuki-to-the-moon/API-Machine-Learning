@@ -1,7 +1,5 @@
 # library bawaan yang dibutuhkan
-# from flask import Flask, jsonify, request, make_response
 from fastapi import FastAPI, Request, Response, Form
-
 import uvicorn
 from pydantic import BaseModel
 
@@ -11,9 +9,9 @@ import mysql.connector
 from datetime import datetime
 
 # module dari model machine learning yang sudah dibuat
-from function.recomendation_collab import recomendation 
-from function.recomendation_category import recommend_places
-from function.recomendation_similarItem import rec_similarItem
+from model.recomendation_collab import recomendation 
+from model.recomendation_category import recommend_places
+from model.recomendation_similarItem import rec_similarItem
 
 # Membuat koneksi ke database
 conn = mysql.connector.connect(
@@ -37,7 +35,6 @@ users = pd.read_sql_query(query, conn)
 app = FastAPI()
 
 # Endpoint untuk route "/"
-# menerima data menggunakan x-www-form-urlencoded
 @app.get("/")
 def home():
     data = {
@@ -54,19 +51,14 @@ class Collab(BaseModel):
     user_long: float
 
 # Endpoint untuk route "/recommendCollab"
-# menerima data menggunakan x-www-form-urlencoded
 @app.post("/recommendCollab")
-def recommendCollab(
-        user_id: int = Form(...),
-        user_lat: float = Form(...),
-        user_long: float = Form(...)
-):
+def recommendCollab(request: Request, user_id: int = Form(...), user_lat: float = Form(...), user_long: float = Form(...)):
     recommendations = recomendation(destination, ratings, user_id, user_lat, user_long)
 
     data = {
         'recommendations': recommendations,
         'status': 'success',
-    }
+    } 
 
     return data
 
@@ -78,23 +70,8 @@ class ContentBased(BaseModel):
     price: int
 
 # Endpoint untuk route "/recommendContentBased"
-# menerima data menggunakan x-www-form-urlencoded
 @app.post("/recommendContentBased")
-def recommendContent(input: ContentBased):
-    # if input.headers.get("Content-Type") != 'application/x-www-form-urlencoded':
-    #     response = {
-    #         'status': 'fail',
-    #         'message': 'Content-Type harus application/x-www-form-urlencoded'
-    #     }
-    #     raise HTTPException(status_code=404, detail=response)
-
-    # Mendapatkan data input dari body request  
-    user_id = input.user_id
-    category = input.category
-    city = input.city
-    price = input.price
-
-    # memanggil fungsi dari model yang sudah dibuat
+def recommendContent(request: Request, user_id: int = Form(...), category: str = Form(...), city: str = Form(...), price: int = Form(...)):
     recommendations = recommend_places(destination, category, city, price, 4)
 
     cursor = conn.cursor()
@@ -102,11 +79,10 @@ def recommendContent(input: ContentBased):
     current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    # syntax sql 
-    sql = "INSERT INTO trip_detail (user_id , trip_name_type, name_wisata, createdAt) VALUES (%s, %s, %s, %s)"
+    sql = "INSERT INTO trip_detail (user_id , trip_name_type, name_wisata, createdAt, updatedAt) VALUES (%s, %s, %s, %s, %s)"
     for category, places in recommendations.items():
         for place in places:
-            values = (user_id, category, place, current_datetime)
+            values = (user_id, category, place, current_datetime, current_datetime)
             cursor.execute(sql, values)
             
     conn.commit()
@@ -117,28 +93,16 @@ def recommendContent(input: ContentBased):
         'status': 'success',
     } 
 
-    # Mengembalikan hasil rekomendasi sebagai respons JSON
     return data
 
 # Endpoint untuk route "/recommendSimilarItem"
-# menerima data menggunakan x-www-form-urlencoded
 @app.post("/recommendSimilarItem")
-def recommendSimilarItem(destination_name: str):
-    # Mendapatkan data input dari body request
-    # if input.headers.get("Content-Type") != 'application/x-www-form-urlencoded':
-    #     response = {
-    #         'status': 'fail',
-    #         'message': 'Content-Type harus application/x-www-form-urlencoded'
-    #     }
-    #     raise HTTPException(status_code=404, detail=response)
-    
-    # memanggil fungsi dari model yang sudah dibuat
+def recommendSimilarItem(request: Request, destination_name: str = Form(...)):
     recommendations = rec_similarItem(destination, destination_name)
 
     data = {
-    'recommendations': recommendations,
-    'status': 'success',
+        'recommendations': recommendations,
+        'status': 'success',
     } 
 
-    # Mengembalikan hasil rekomendasi sebagai respons JSON
     return data

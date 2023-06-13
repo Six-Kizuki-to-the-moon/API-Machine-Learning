@@ -1,28 +1,27 @@
 # Machine Learning Deployment
-This API has been creating using FLASK
+This API has been creating using FastAPI
 
-## Requirements
+## Packages
 Packages
 ```
-Flask 
-numpy
-pandas
-tensorflow
-scikit-learn
-mysql-connector-python
+pip install fastapi
+pip install tensorflow
+pip install pandas
+pip install mysql-connector
+pip install mysql-connector-python
+pip install pymysql
+pip install scikit-learn
+pip install uvicorn
+pip install python-multipart
 ```
-Note
-- Make sure you already installed <a href="[https://translate.google.com/?sl=en&tl=id&text=packages&op=translate](https://www.anaconda.com/download-success)">anaconda</a>
-- Make sure you already installed <a href="https://www.apachefriends.org/">xampp</a>
-- Create database with name 'tourista_db' with contain tables:
-    - destination
-    - review_wisata
-    - trip
-    - trip_detail
-    - user_account
-    - user_profile
-- Import via csv file <a href="https://github.com/Six-Kizuki-to-the-moon/Machine-Learning/tree/main/dataset">dataset</a> to each table in the previously created database
-- run the API with "`python main.py`"
+
+Note<br>
+<ul>
+  <li>Make sure you already installed <a href="[https://translate.google.com/?sl=en&tl=id&text=packages&op=translate](https://www.anaconda.com/download-success)">anaconda</a></li>
+  <li>Make sure you already installed <a href="https://www.apachefriends.org/">xampp</a></li>
+  <li>Download database on folder `/app/dataset/Db_touristaExample.sql` and import on your xampp</li>
+</ul>
+
 
 # Endpoint
 

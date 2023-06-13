@@ -1,0 +1,10 @@
+fastapi
+tensorflow
+pandas
+mysql-connector
+mysql-connector-python
+pymysql
+scikit-learn
+uvicorn
+gunicorn
+python-multipart

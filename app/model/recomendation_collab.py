@@ -15,20 +15,8 @@ from math import radians
 def recomendation(destination, ratings, user_id, user_lat, user_long, np_val = 5):
     ratings = ratings.sort_values('wisata_rating', ascending=False).drop_duplicates(subset=['wisata_id', 'user_wisata'], keep='first')
     
-    train, test = train_test_split(ratings, test_size = 0.2)
-    
     # Load pre-trained model
-    model = tf.keras.models.load_model('model\pretrained_collab_rec')
-    
-    early_stopping = EarlyStopping(patience=5, restore_best_weights=True)
-    model.compile(optimizer=Adam(learning_rate = 0.0005), loss='mean_squared_error') 
-    
-    model.fit(x= [train.wisata_id, train.user_wisata], 
-                    y= train.wisata_rating, 
-                    validation_data = ([train.wisata_id, train.user_wisata], train.wisata_rating), 
-                    epochs =5,
-                    verbose = False,
-                    callbacks=[early_stopping])
+    model = tf.keras.models.load_model('../ml-dev/pretrained_collab_rec')
     
     def haversine_distance(lat1, long1, lat2, long2):
         earth_radius = 6371  # Radius of the Earth in kilometers (source: google)
