@@ -5,9 +5,9 @@ import pandas as pd
 import mysql.connector
 
 # module dari model machine learning yang sudah dibuat
-from model.recomendation_collab import recomendation 
-from model.recomendation_category import recommend_places
-from model.recomendation_similarItem import rec_similarItem
+from function.recomendation_collab import recomendation 
+from function.recomendation_category import recommend_places
+from function.recomendation_similarItem import rec_similarItem
 
 # Membuat koneksi ke database
 def connDB(host, user, password, database):

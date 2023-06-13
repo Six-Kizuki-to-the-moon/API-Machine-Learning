@@ -18,7 +18,7 @@ def recomendation(destination, ratings, user_id, user_lat, user_long, np_val = 5
     train, test = train_test_split(ratings, test_size = 0.2)
     
     # Load pre-trained model
-    model = tf.keras.models.load_model('API\ml-dev\pretrained_collab_rec')
+    model = tf.keras.models.load_model('model\pretrained_collab_rec')
     
     early_stopping = EarlyStopping(patience=5, restore_best_weights=True)
     model.compile(optimizer=Adam(learning_rate = 0.0005), loss='mean_squared_error') 
