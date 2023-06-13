@@ -1,0 +1,8 @@
+flask==2.3.2
+tensorflow==2.12.0
+pandas==2.0.2
+mysql-connector==2.2.9
+mysql-connector-python==9.0.33
+pymysql==1.0.3
+scikit-learn==1.2.2
+numpy==1.23.5
