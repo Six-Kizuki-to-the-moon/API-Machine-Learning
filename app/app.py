@@ -6,7 +6,7 @@ from pydantic import BaseModel
 import pandas as pd
 import mysql.connector
 import warnings
-from config.config import host, password
+from config.db_config import host, user, password, database
 from pandas.errors import SettingWithCopyWarning
 
 # Suppress the warning
@@ -23,9 +23,9 @@ from model.recomendation_similarItem import rec_similarItem
 def defineDB():
     conn = mysql.connector.connect(
         host=host,
-        user='root',
+        user=user,
         password=password,
-        database='tourista_db' 
+        database=database 
     )
     return conn
 
