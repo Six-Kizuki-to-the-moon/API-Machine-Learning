@@ -3,27 +3,36 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # fungsi untuk melakukan groouping data
 def groupingCategory(df, budget, totalCategory, excepts = []):
+    '''
+        df : dataframe destination has been contain (id,name_wisata,description_wisata,category,destination_photo,city,price,rating,time_minutes,coordinate,destination_lat,destination_long)
+        budget : Total estimate budget for 3 iterations
+        totalCategory : Total destination for every iteration
+        excepts : optional 
+    '''
     data = []
-    
+    visited_names = []
+
     if len(excepts) == 0:
         for idx, row in df.iterrows():
             if len(data) == totalCategory:
                 break
-            if row['price'] < budget:
+            if row['price'] < budget and row['name_wisata'] not in visited_names:
                 data.append(row['name_wisata'])
-                budget -= row['price']    
+                visited_names.append(row['name_wisata'])
+                budget -= row['price']
     else:
         for x in excepts:
             if df['name_wisata'].eq(x).any():
-                df = df.loc[df['price'] != x]
-                
+                df = df.loc[df['name_wisata'] != x]
+
         for idx, row in df.iterrows():
             if len(data) == totalCategory:
                 break
-            if row['price'] < budget:
+            if row['price'] < budget and row['name_wisata'] not in visited_names:
                 data.append(row['name_wisata'])
+                visited_names.append(row['name_wisata'])
                 budget -= row['price']
-        
+
     return data
     
 # Function to recommend places based on user input
