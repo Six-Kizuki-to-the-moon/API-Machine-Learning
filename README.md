@@ -42,7 +42,7 @@ Note
 All of the body for given data only using x-www-form-urlencoded format
 
 ```
-  POST /recommendContentBased
+  POST /ml/recommendContentBased
 ```
 
 | Key          | Info     |
@@ -57,7 +57,7 @@ All of the body for given data only using x-www-form-urlencoded format
 All of the body for given data only using x-www-form-urlencoded format
 
 ```
-  POST /recommendCollab
+  POST /ml/recommendCollab
 ```
 
 | Key          | Info     |
@@ -71,7 +71,7 @@ All of the body for given data only using x-www-form-urlencoded format
 All of the body for given data only using x-www-form-urlencoded format
 
 ```
-  POST /recommendSimilarItem
+  POST /ml/recommendSimilarItem
 ```
 
 | Key                | Info     |
