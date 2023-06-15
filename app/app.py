@@ -1,11 +1,17 @@
 # library bawaan yang dibutuhkan
 from fastapi import FastAPI, Request, Response, Form
-import uvicorn
 from pydantic import BaseModel
 
 # import numpy as np
 import pandas as pd
 import mysql.connector
+import warnings
+from config.config import host, password
+from pandas.errors import SettingWithCopyWarning
+
+# Suppress the warning
+warnings.filterwarnings("ignore", category=SettingWithCopyWarning)
+
 from datetime import datetime
 
 # module dari model machine learning yang sudah dibuat
@@ -14,23 +20,29 @@ from model.recomendation_category import recommend_places
 from model.recomendation_similarItem import rec_similarItem
 
 # Membuat koneksi ke database
-conn = mysql.connector.connect(
-    host='34.101.200.187',
-    user='root',
-    password='7b0d345c653dd8a54ccb286c10f575d1',
-    database='tourista_db' 
-)
+def defineDB():
+    conn = mysql.connector.connect(
+        host=host,
+        user='root',
+        password=password,
+        database='tourista_db' 
+    )
+    return conn
 
-# Mengeksekusi query untuk mengambil data dari tabel
-
-query = "SELECT * FROM destination"
-destination = pd.read_sql_query(query, conn)
-
-query = "SELECT * FROM review_wisata"
-ratings = pd.read_sql_query(query, conn)
-
-query = "SELECT * FROM user_profile"
-users = pd.read_sql_query(query, conn)
+# Define a function to close database connection
+def close_db_connection(mydb):
+    # Check if the connection object exists
+    if mydb:
+        # Try to close the connection
+        try:
+            # Close the connection
+            mydb.close()
+            # Print a success message
+            print("Closed connection to database")
+        # Handle any exceptions
+        except mysql.connector.Error as e:
+            # Print an error message
+            print("Failed to close connection to database:", e)
 
 app = FastAPI()
 
@@ -53,15 +65,24 @@ class Collab(BaseModel):
 # Endpoint untuk route "/recommendCollab"
 @app.post("/recommendCollab")
 def recommendCollab(request: Request, user_id: int = Form(...), user_lat: float = Form(...), user_long: float = Form(...)):
+    conn = defineDB()
+    
+    query = "SELECT * FROM destination"
+    destination = pd.read_sql_query(query, conn)
+
+    query = "SELECT * FROM review_wisata"
+    ratings = pd.read_sql_query(query, conn)
+
     recommendations = recomendation(destination, ratings, user_id, user_lat, user_long)
 
+    close_db_connection(conn)
+    
     data = {
         'recommendations': recommendations,
         'status': 'success',
     } 
 
     return data
-
 
 class ContentBased(BaseModel):
     user_id: int
@@ -72,23 +93,28 @@ class ContentBased(BaseModel):
 # Endpoint untuk route "/recommendContentBased"
 @app.post("/recommendContentBased")
 def recommendContent(request: Request, user_id: int = Form(...), category: str = Form(...), city: str = Form(...), price: int = Form(...)):
+    conn = defineDB()
+    
+    query = "SELECT * FROM destination"
+    destination = pd.read_sql_query(query, conn)
+    
     recommendations = recommend_places(destination, category, city, price, 4)
-
     cursor = conn.cursor()
     
     current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    sql = "INSERT INTO trip_detail (user_id , trip_name_type, name_wisata, createdAt, updatedAt) VALUES (%s, %s, %s, %s, %s)"
+    sql = "INSERT INTO trip_detail (user_id , trip_name_type, name_wisata, createdAt) VALUES (%s, %s, %s, %s)"
     for category, places in recommendations.items():
         for place in places:
-            values = (user_id, category, place, current_datetime, current_datetime)
+            values = (user_id, category, place, current_datetime)
             cursor.execute(sql, values)
             
     conn.commit()
-    
     cursor.close()
     
+    close_db_connection(conn)
+
     data = {
         'status': 'success',
     } 
@@ -98,7 +124,14 @@ def recommendContent(request: Request, user_id: int = Form(...), category: str =
 # Endpoint untuk route "/recommendSimilarItem"
 @app.post("/recommendSimilarItem")
 def recommendSimilarItem(request: Request, destination_name: str = Form(...)):
+    conn = defineDB()
+    
+    query = "SELECT * FROM destination"
+    destination = pd.read_sql_query(query, conn)
+
     recommendations = rec_similarItem(destination, destination_name)
+
+    close_db_connection(conn)
 
     data = {
         'recommendations': recommendations,
